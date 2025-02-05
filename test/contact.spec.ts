@@ -111,4 +111,77 @@ describe('ContactController (e2e)', () => {
       expect(response.body.data.phone).toBe('9999');
     });
   });
+
+  describe('PUT /api/contacts', () => {
+    beforeEach(async () => {
+      await testService.deleteContact();
+      await testService.deleteUser();
+
+      await testService.createUser();
+      await testService.createContact();
+    });
+
+    it('Should be rejected if request is invalid', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .put(`/api/contacts/${contact.id}`)
+        .set('Authorization', 'test')
+        .send({
+          username: contact.username,
+          first_name: '',
+          last_name: '',
+          email: 'salah@example.com',
+          phone: '',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('Should be rejected if contact not found', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .put(`/api/contacts/${contact.id + 1}`)
+        .set('Authorization', 'test')
+        .send({
+          username: contact.username,
+          first_name: 'test',
+          last_name: 'test',
+          email: 'salah@example.com',
+          phone: '8888',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('Should be able to update contact', async () => {
+      const contact = await testService.getContact();
+      const response = await request(app.getHttpServer())
+        .put(`/api/contacts/${contact.id}`)
+        .set('Authorization', 'test')
+        .send({
+          username: contact.username,
+          first_name: 'updated',
+          last_name: 'updated',
+          email: 'updated@example.com',
+          phone: '1111',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBeDefined();
+      expect(response.body.data.first_name).toBe('updated');
+      expect(response.body.data.last_name).toBe('updated');
+      expect(response.body.data.email).toBe('updated@example.com');
+      expect(response.body.data.phone).toBe('1111');
+    });
+  });
 });
