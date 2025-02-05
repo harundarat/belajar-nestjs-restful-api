@@ -115,7 +115,7 @@ describe('UserController (e2e)', () => {
     });
   });
 
-  describe('POST /api/users/current', () => {
+  describe('GET /api/users/current', () => {
     beforeEach(async () => {
       await testService.deleteUser();
       await testService.createUser();
@@ -202,7 +202,41 @@ describe('UserController (e2e)', () => {
           password: 'updated',
         });
 
+      expect(response.status).toBe(200);
       expect(response.body.data.token).toBeDefined();
+    });
+  });
+
+  describe('DELETE /api/users/current', () => {
+    beforeEach(async () => {
+      await testService.deleteUser();
+      await testService.createUser();
+    });
+
+    it('Should be rejected if token is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/api/users/current')
+        .set('Authorization', 'wrong');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('Should be able to logout user', async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/api/users/current')
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toBe(true);
+
+      const user = await testService.getUser();
+
+      expect(user.token).toBeNull;
     });
   });
 });

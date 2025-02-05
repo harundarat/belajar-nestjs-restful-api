@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { User } from '@prisma/client';
+import { UserResponse } from 'src/model/user.model';
 
 @Injectable()
 export class TestService {
@@ -21,5 +23,17 @@ export class TestService {
         token: 'test',
       },
     });
+  }
+
+  async getUser(): Promise<UserResponse> {
+    const user = await this.prismaService.user.findUnique({
+      where: { username: 'test' },
+    });
+
+    return {
+      username: user!.username,
+      name: user!.name,
+      token: user!.token!,
+    };
   }
 }
