@@ -1,4 +1,9 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Contact, User } from '@prisma/client';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from 'src/common/prisma.service';
@@ -10,6 +15,7 @@ import {
 } from 'src/model/contact.model';
 import { Logger } from 'winston';
 import { ContactValidation } from './contact.validation';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ContactService {
@@ -65,12 +71,12 @@ export class ContactService {
 
     if (!contact) throw new HttpException('Contact not found!', 404);
 
-    return this.toContactResponse(contact);
+    return contact;
   }
 
   async get(user: User, contactId: number): Promise<ContactResponse> {
     const contact = await this.checkContactMustExists(user.username, contactId);
-    return contact;
+    return this.toContactResponse(contact);
   }
 
   async update(
@@ -92,6 +98,14 @@ export class ContactService {
       data: updateRequest,
     });
 
+    return this.toContactResponse(contact);
+  }
+
+  async delete(user: User, contactId: number): Promise<ContactResponse> {
+    const contact = await this.checkContactMustExists(user.username, contactId);
+    await this.prismaService.contact.delete({
+      where: { id: contactId, username: user.username },
+    });
     return this.toContactResponse(contact);
   }
 }

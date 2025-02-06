@@ -112,7 +112,7 @@ describe('ContactController (e2e)', () => {
     });
   });
 
-  describe('PUT /api/contacts', () => {
+  describe('PUT /api/contacts::contactId', () => {
     beforeEach(async () => {
       await testService.deleteContact();
       await testService.deleteUser();
@@ -182,6 +182,49 @@ describe('ContactController (e2e)', () => {
       expect(response.body.data.last_name).toBe('updated');
       expect(response.body.data.email).toBe('updated@example.com');
       expect(response.body.data.phone).toBe('1111');
+    });
+  });
+
+  describe('DELETE /api/contacts/:contactId', () => {
+    beforeEach(async () => {
+      await testService.deleteContact();
+      await testService.deleteUser();
+
+      await testService.createUser();
+      await testService.createContact();
+    });
+
+    it('Should be rejected if contact is not found', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .delete(`/api/contacts/${contact.id + 1}`)
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('Should be able to delete contact', async () => {
+      let contact = await testService.getContact();
+
+      let response = await request(app.getHttpServer())
+        .delete(`/api/contacts/${contact.id}`)
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toBe(true);
+
+      response = await request(app.getHttpServer())
+        .delete(`/api/contacts/${contact.id}`)
+        .set('Authorization', 'test');
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
     });
   });
 });
