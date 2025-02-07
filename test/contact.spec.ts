@@ -112,7 +112,7 @@ describe('ContactController (e2e)', () => {
     });
   });
 
-  describe('PUT /api/contacts::contactId', () => {
+  describe('PUT /api/contacts:contactId', () => {
     beforeEach(async () => {
       await testService.deleteContact();
       await testService.deleteUser();
@@ -225,6 +225,145 @@ describe('ContactController (e2e)', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe('GET /api/contacts', () => {
+    beforeEach(async () => {
+      await testService.deleteContact();
+      await testService.deleteUser();
+
+      await testService.createUser();
+      await testService.createContact();
+    });
+
+    it('Should be able to search contacts', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('Should be able to search contacts by name', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .query({
+          name: 'est',
+        })
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('Should be able to search contacts by name not found', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .query({
+          name: 'wrong',
+        })
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+    });
+
+    it('Should be able to search contacts by email', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .query({
+          email: '.com',
+        })
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('Should be able to search contacts by email not found', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .query({
+          email: 'wrong',
+        })
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+    });
+
+    it('Should be able to search contacts by phone', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .query({
+          phone: '99',
+        })
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('Should be able to search contacts by phone not found', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .query({
+          phone: '88',
+        })
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+    });
+
+    it('Should be able to search contacts with page', async () => {
+      const contact = await testService.getContact();
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts`)
+        .query({
+          page: '2',
+          size: '1',
+        })
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+      expect(response.body.paging.current_page).toBe(2);
+      expect(response.body.paging.total_page).toBe(1);
+      expect(response.body.paging.size).toBe(1);
     });
   });
 });
