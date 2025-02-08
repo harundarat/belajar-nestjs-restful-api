@@ -6,6 +6,15 @@ import { UserResponse } from 'src/model/user.model';
 
 @Injectable()
 export class TestService {
+  async deleteAddress() {
+    await this.prismaService.address.deleteMany({
+      where: {
+        contact: {
+          username: 'test',
+        },
+      },
+    });
+  }
   constructor(private prismaService: PrismaService) {}
 
   async deleteUser() {
