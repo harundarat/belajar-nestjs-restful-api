@@ -27,7 +27,7 @@ describe('UserController (e2e)', () => {
 
   describe('POST /api/users', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
     });
 
     it('Should be rejected if request is invalid', async () => {
@@ -80,7 +80,7 @@ describe('UserController (e2e)', () => {
 
   describe('POST /api/users/login', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
@@ -117,7 +117,7 @@ describe('UserController (e2e)', () => {
 
   describe('GET /api/users/current', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
@@ -147,7 +147,7 @@ describe('UserController (e2e)', () => {
 
   describe('PATCH /api/users/current', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
@@ -209,7 +209,7 @@ describe('UserController (e2e)', () => {
 
   describe('DELETE /api/users/current', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
