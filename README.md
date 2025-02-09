@@ -92,11 +92,17 @@ pnpm run test
 
 ### Address Endpoints
 
-- `POST /api/contacts/:contactId/addresses` - Create address
-- `GET /api/contacts/:contactId/addresses/:addressId` - Get address
+- `POST /api/contacts/:contactId/addresses` - Create new address
+- `GET /api/contacts/:contactId/addresses/:addressId` - Get address details
 - `PUT /api/contacts/:contactId/addresses/:addressId` - Update address
-- `DELETE /api/contacts/:contactId/addresses/:addressId` - Remove address
-- `GET /api/contacts/:contactId/addresses` - List addresses
+- `DELETE /api/contacts/:contactId/addresses/:addressId` - Delete address
+- `GET /api/contacts/:contactId/addresses` - List all addresses for a contact
+
+Each address endpoint requires authentication and validates:
+
+- Contact ownership
+- Address existence
+- Required fields (street, city, country, postal_code)
 
 ## 🛠 Tech Stack
 

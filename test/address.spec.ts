@@ -283,4 +283,49 @@ describe('AddressController (e2e)', () => {
       expect(response.body.data).toBe(true);
     });
   });
+
+  describe('GET /api/contacts/:contactId/addresses/', () => {
+    beforeEach(async () => {
+      await testService.deleteAddress();
+      await testService.deleteContact();
+      await testService.deleteUser();
+
+      await testService.createUser();
+      await testService.createContact();
+      await testService.createAddress();
+    });
+
+    it('Should be rejected if contact is not found', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.getAddress();
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts/${contact.id + 1}/addresses`)
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('Should be able to get addresses', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.getAddress();
+      const response = await request(app.getHttpServer())
+        .get(`/api/contacts/${contact.id}/addresses`)
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+      expect(response.body.data[0].id).toBeDefined();
+      expect(response.body.data[0].street).toBe('jalan test');
+      expect(response.body.data[0].city).toBe('kota test');
+      expect(response.body.data[0].province).toBe('provinsi test');
+      expect(response.body.data[0].country).toBe('negara test');
+      expect(response.body.data[0].postal_code).toBe('1111');
+      expect(response.body.data[0].contact_id).toBeDefined();
+    });
+  });
 });
